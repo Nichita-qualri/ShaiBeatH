@@ -12,4 +12,9 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene("Shop");
     }
+
+    public void OpenSettings()
+    {
+        SceneManager.LoadScene("Settings");
+    }
 }

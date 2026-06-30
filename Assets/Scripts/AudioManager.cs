@@ -111,4 +111,9 @@ public class AudioManager : MonoBehaviour
             layer.Stop();
         _ambientSource.Stop();
     }
+
+    public void SetSoundEnabled(bool enabled)
+    {
+        _sfxSource.volume = enabled ? sfxVolume : 0f;
+    }
 }
