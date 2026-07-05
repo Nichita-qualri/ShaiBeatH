@@ -27,18 +27,18 @@ public class ShopManager : MonoBehaviour
     private int _selectedSkin = 0;
 
     private string[] _names = {
-        "Standard",
-        "Atreides",
-        "Harkonnen",
-        "Fremen"
-    };
+    "Standard",
+    "Vanguard",
+    "Ironclad",
+    "Nomad"
+};
 
     private string[] _descriptions = {
-        "Standard spice harvesting machine",
-        "House Atreides harvester. 10% faster",
-        "Harkonnen harvester. 10% more durable",
-        "Fremen harvester. Silent and stealthy"
-    };
+    "Standard spice harvesting machine",
+    "Vanguard harvester. 10% faster",
+    "Ironclad harvester. 10% more durable",
+    "Nomad harvester. Silent and stealthy"
+};
 
     private string[] _prices = {
         "FREE",

@@ -5,11 +5,11 @@ public class RhythmManager : MonoBehaviour
 {
     public static RhythmManager Instance;
 
-    [Header("Ритм")]
+    [Header("Rhythm")]
     public float bpm = 40f;
     public float tapWindowMs = 200f;
 
-    [Header("События")]
+    [Header("Events")]
     public UnityEvent onBeat;
     public UnityEvent onGoodTap;
     public UnityEvent onBadTap;
@@ -44,9 +44,7 @@ public class RhythmManager : MonoBehaviour
     public void RegisterGoodTap()
     {
         combo++;
-        Debug.Log("Комбо: " + combo);
         onGoodTap?.Invoke();
-
         if (AudioManager.Instance != null)
             AudioManager.Instance.OnGoodTap();
     }
@@ -54,11 +52,11 @@ public class RhythmManager : MonoBehaviour
     public void RegisterBadTap()
     {
         combo = 0;
-        Debug.Log("Комбо сброшен");
         onBadTap?.Invoke();
-
         if (AudioManager.Instance != null)
             AudioManager.Instance.OnBadTap();
+        if (CameraShake.Instance != null)
+            CameraShake.Instance.Shake(0.3f, 0.1f);
     }
 
     public bool IsInTapWindow()

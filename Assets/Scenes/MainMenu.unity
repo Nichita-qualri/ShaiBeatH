@@ -360,6 +360,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuMusic: {fileID: 8300000, guid: 4cdc580255d8efe47b830296ed6ebe3d, type: 3}
+  buttonClick: {fileID: 8300000, guid: f939bb7c522a7da4a9e9744b6537c0be, type: 3}
 --- !u!4 &109857353
 Transform:
   m_ObjectHideFlags: 0

@@ -12,21 +12,27 @@ public class LevelManager : MonoBehaviour
     public GameObject victoryScreenPanel;
     public TextMeshProUGUI victoryScoreText;
 
-    [Header("Фоны локаций")]
+    [Header("Backgrounds")]
     public SpriteRenderer backgroundRenderer;
     public Sprite bgDay;
     public Sprite bgNight;
     public Sprite bgUnderground;
 
-    [Header("Спрайты червя")]
+    [Header("Worm Sprites")]
     public SpriteRenderer wormRenderer;
     public Sprite wormDay;
     public Sprite wormNight;
     public Sprite wormUnderground;
 
+    [Header("Endless Mode")]
+    public int maxLevels = 15;
+
     [HideInInspector] public int currentLevel = 1;
+    [HideInInspector] public bool isEndlessMode = false;
+
     private int _spiceGoal;
     private bool _levelComplete = false;
+    private int _endlessMultiplier = 1;
 
     void Awake()
     {
@@ -34,11 +40,24 @@ public class LevelManager : MonoBehaviour
         victoryScreenPanel.SetActive(false);
 
         currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
+
+        // Endless Mode если прошли все уровни
+        if (currentLevel > maxLevels)
+        {
+            isEndlessMode = true;
+            _endlessMultiplier = currentLevel - maxLevels;
+        }
+
         _spiceGoal = GetGoalForLevel(currentLevel);
         UpdateGoalUI();
 
         if (levelText != null)
-            levelText.text = "LEVEL " + currentLevel;
+        {
+            if (isEndlessMode)
+                levelText.text = "ENDLESS " + _endlessMultiplier;
+            else
+                levelText.text = "LEVEL " + currentLevel;
+        }
 
         ApplyLevelDifficulty(currentLevel);
         ApplyBackground(currentLevel);
@@ -62,18 +81,23 @@ public class LevelManager : MonoBehaviour
         WormController worm = FindObjectOfType<WormController>();
         SpiceSpawner spawner = FindObjectOfType<SpiceSpawner>();
 
+        // В Endless Mode сложность продолжает расти
+        int effectiveLevel = isEndlessMode ? maxLevels + _endlessMultiplier : level;
+
         if (rhythm != null)
-            rhythm.bpm = 40f + (level - 1) * 4f;
+            rhythm.bpm = Mathf.Min(40f + (effectiveLevel - 1) * 4f, 120f);
 
         if (worm != null)
-            worm.angrySpeed = 0.3f + (level - 1) * 0.1f;
+            worm.angrySpeed = Mathf.Min(0.3f + (effectiveLevel - 1) * 0.1f, 3f);
 
         if (spawner != null)
-            spawner.maxMarkersOnScreen = level < 5 ? 2 : level < 10 ? 3 : 4;
+            spawner.maxMarkersOnScreen = effectiveLevel < 5 ? 2 : effectiveLevel < 10 ? 3 : 4;
     }
 
     int GetGoalForLevel(int level)
     {
+        if (isEndlessMode)
+            return 500 + _endlessMultiplier * 300;
         return 300 + (level - 1) * 200;
     }
 
@@ -97,7 +121,12 @@ public class LevelManager : MonoBehaviour
             victoryScreenPanel.SetActive(true);
 
         if (victoryScoreText != null)
-            victoryScoreText.text = "LEVEL " + currentLevel + " COMPLETE!\n\n SPICE COLLECTED: " + GameManager.Instance.GetSpice();
+        {
+            if (isEndlessMode)
+                victoryScoreText.text = "ENDLESS " + _endlessMultiplier + " COMPLETE!\n\nSPICE COLLECTED: " + GameManager.Instance.GetSpice();
+            else
+                victoryScoreText.text = "LEVEL " + currentLevel + " COMPLETE!\n\nSPICE COLLECTED: " + GameManager.Instance.GetSpice();
+        }
 
         Invoke(nameof(ShowUpgrade), 2f);
     }
@@ -121,22 +150,22 @@ public class LevelManager : MonoBehaviour
     {
         if (backgroundRenderer != null)
         {
-            if (level <= 5)
-                backgroundRenderer.sprite = bgDay;
-            else if (level <= 10)
-                backgroundRenderer.sprite = bgNight;
-            else
+            if (isEndlessMode || level > 10)
                 backgroundRenderer.sprite = bgUnderground;
+            else if (level <= 5)
+                backgroundRenderer.sprite = bgDay;
+            else
+                backgroundRenderer.sprite = bgNight;
         }
 
         if (wormRenderer != null)
         {
-            if (level <= 5)
-                wormRenderer.sprite = wormDay;
-            else if (level <= 10)
-                wormRenderer.sprite = wormNight;
-            else
+            if (isEndlessMode || level > 10)
                 wormRenderer.sprite = wormUnderground;
+            else if (level <= 5)
+                wormRenderer.sprite = wormDay;
+            else
+                wormRenderer.sprite = wormNight;
         }
     }
 
