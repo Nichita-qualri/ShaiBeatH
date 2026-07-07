@@ -41,6 +41,15 @@ public class LevelManager : MonoBehaviour
 
         currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
 
+        // Миграция старых сохранений: если MaxUnlockedLevel ещё нет,
+        // берём максимум из CurrentLevel, чтобы не потерять прогресс
+        int maxUnlocked = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
+        if (currentLevel > maxUnlocked)
+        {
+            PlayerPrefs.SetInt("MaxUnlockedLevel", currentLevel);
+            PlayerPrefs.Save();
+        }
+
         // Endless Mode если прошли все уровни
         if (currentLevel > maxLevels)
         {
@@ -88,7 +97,10 @@ public class LevelManager : MonoBehaviour
             rhythm.bpm = Mathf.Min(40f + (effectiveLevel - 1) * 4f, 120f);
 
         if (worm != null)
-            worm.angrySpeed = Mathf.Min(0.3f + (effectiveLevel - 1) * 0.1f, 3f);
+        {
+            worm.normalSpeed = 0.15f + (level - 1) * 0.03f;
+            worm.angrySpeed = 0.5f + (level - 1) * 0.15f;
+        }
 
         if (spawner != null)
             spawner.maxMarkersOnScreen = effectiveLevel < 5 ? 2 : effectiveLevel < 10 ? 3 : 4;
@@ -114,7 +126,17 @@ public class LevelManager : MonoBehaviour
         SpiceSpawner spawner = FindObjectOfType<SpiceSpawner>();
         if (spawner != null) spawner.StopSpawning();
 
-        PlayerPrefs.SetInt("CurrentLevel", currentLevel + 1);
+        int nextLevel = currentLevel + 1;
+
+        // Обновляем МАКСИМАЛЬНЫЙ открытый уровень, только если nextLevel больше
+        int maxUnlocked = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
+        if (nextLevel > maxUnlocked)
+        {
+            PlayerPrefs.SetInt("MaxUnlockedLevel", nextLevel);
+        }
+
+        // CurrentLevel двигаем вперёд, чтобы "Next Level" вёл на новый уровень
+        PlayerPrefs.SetInt("CurrentLevel", nextLevel);
         PlayerPrefs.Save();
 
         if (victoryScreenPanel != null)

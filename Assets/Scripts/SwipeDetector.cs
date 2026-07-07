@@ -2,7 +2,7 @@
 
 public class SwipeDetector : MonoBehaviour
 {
-    [Header("Настройки")]
+    [Header("Settings")]
     public float minSwipeDistance = 50f;
     public HarvesterController harvester;
     public WormController worm;
@@ -11,6 +11,11 @@ public class SwipeDetector : MonoBehaviour
     private bool _swiping = false;
     private int _swipesUsed = 0;
     private int _maxSwipes = 1;
+
+    private float _minY = -1f;
+    private float _maxY = 3.5f;
+    private float _minX = -4f;
+    private float _maxX = 4f;
 
     void Start()
     {
@@ -49,16 +54,44 @@ public class SwipeDetector : MonoBehaviour
         if (_swipesUsed >= _maxSwipes) return;
         _swipesUsed++;
 
-        Debug.Log("Свайп: " + direction + " использовано: " + _swipesUsed + "/" + _maxSwipes);
-
+        // Двигаем харвестер
         Vector3 newPos = harvester.transform.position + direction * 3f;
-        newPos.x = Mathf.Clamp(newPos.x, -4f, 4f);
-        newPos.y = Mathf.Clamp(newPos.y, -2f, 3.5f);
+        newPos.x = Mathf.Clamp(newPos.x, _minX, _maxX);
+        newPos.y = Mathf.Clamp(newPos.y, _minY, _maxY);
         harvester.DodgeTo(newPos);
 
-        Vector3 wormResetPos = harvester.transform.position + (-direction) * 4f;
-        wormResetPos.x = Mathf.Clamp(wormResetPos.x, -4f, 4f);
-        wormResetPos.y = Mathf.Clamp(wormResetPos.y, -2f, 3.5f);
+        // Червь в противоположную сторону
+        Vector3 wormResetPos = GetSafeWormPosition();
         worm.ResetWorm(wormResetPos);
+    }
+
+    Vector3 GetSafeWormPosition()
+    {
+        Vector3 harvesterPos = harvester.transform.position;
+        float midY = (_minY + _maxY) / 2f;
+
+        float x = Random.Range(_minX, _maxX);
+        float y;
+
+        if (harvesterPos.y < midY - 1f)
+        {
+            // Харвестер внизу — червь вверх
+            y = Random.Range(midY + 0.5f, _maxY);
+        }
+        else if (harvesterPos.y > midY + 1f)
+        {
+            // Харвестер вверху — червь вниз
+            y = Random.Range(_minY, midY - 0.5f);
+        }
+        else
+        {
+            // Харвестер посередине — рандомно
+            if (Random.value > 0.5f)
+                y = Random.Range(midY + 0.5f, _maxY);
+            else
+                y = Random.Range(_minY, midY - 0.5f);
+        }
+
+        return new Vector3(x, y, 0f);
     }
 }

@@ -21028,7 +21028,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 769b7ca904f0fe143884a2bf1000ef4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  normalSpeed: 0.3
+  normalSpeed: 0.8
   angrySpeed: 1
   dangerDistance: 2
   deathDistance: 0.8

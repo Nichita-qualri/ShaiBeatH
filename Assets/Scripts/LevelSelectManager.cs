@@ -16,7 +16,8 @@ public class LevelSelectManager : MonoBehaviour
 
     void Start()
     {
-        _unlockedLevels = PlayerPrefs.GetInt("CurrentLevel", 1);
+        // Читаем МАКСИМАЛЬНЫЙ открытый уровень, а не текущий выбранный
+        _unlockedLevels = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
         CreateLevelButtons();
     }
 
@@ -26,11 +27,9 @@ public class LevelSelectManager : MonoBehaviour
         {
             GameObject btn = Instantiate(levelButtonPrefab, levelsGrid);
             btn.name = "Level_" + i;
-
             TextMeshProUGUI text = btn.GetComponentInChildren<TextMeshProUGUI>();
             Button button = btn.GetComponent<Button>();
             Image image = btn.GetComponent<Image>();
-
             int levelNum = i;
 
             if (i <= _unlockedLevels)
@@ -54,19 +53,19 @@ public class LevelSelectManager : MonoBehaviour
         GameObject label = new GameObject(title);
         label.transform.SetParent(parent);
         label.transform.SetSiblingIndex(index);
-
         TextMeshProUGUI text = label.AddComponent<TextMeshProUGUI>();
         text.text = title;
         text.fontSize = 28;
         text.color = new Color(0.94f, 0.75f, 0f);
         text.alignment = TextAlignmentOptions.Center;
-
         RectTransform rt = label.GetComponent<RectTransform>();
         rt.sizeDelta = new Vector2(900, 50);
     }
 
     void SelectLevel(int level)
     {
+        // Тут только выбираем, какой уровень ЗАГРУЗИТЬ.
+        // MaxUnlockedLevel не трогаем — прогресс не теряется
         PlayerPrefs.SetInt("CurrentLevel", level);
         PlayerPrefs.Save();
         SceneManager.LoadScene("SampleScene");
