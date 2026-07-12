@@ -1,57 +1,69 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections;
 
 public class TutorialManager : MonoBehaviour
 {
-    [Header("Tutorial")]
+    [Header("Panel")]
     public GameObject tutorialPanel;
-    public TextMeshProUGUI tutorialText1;
-    public TextMeshProUGUI tutorialText2;
-    public TextMeshProUGUI tutorialText3;
+    public TextMeshProUGUI tutorialText;
+    public TextMeshProUGUI pageIndicatorText; // optional, e.g. "1/4"
 
-    private bool _tutorialShown = false;
+    [Header("Buttons")]
+    public Button nextButton;
+    public TextMeshProUGUI nextButtonLabel; // text inside nextButton, e.g. "NEXT" / "GOT IT"
+    public Button closeButton; // optional separate close (X) button
 
-    void Start()
+    [Header("Steps")]
+    [TextArea(2, 4)]
+    public string[] steps = new string[]
     {
-        int level = PlayerPrefs.GetInt("CurrentLevel", 1);
+        "TAP the glowing spice markers in rhythm to move your harvester.",
+        "SWIPE to dodge the worm when it gets close. You have a limited number of dodges per level.",
+        "The worm chases you and speeds up if you miss a beat. Don't fall behind!",
+        "SHIELD: upgrade Armor in the shop to get up to 2 shields per level. A shield saves you from one worm bite."
+    };
 
-        // Показываем туториал только на первом уровне
-        if (level == 1 && !_tutorialShown)
-        {
-            tutorialPanel.SetActive(true);
-            StartCoroutine(ShowTutorial());
-        }
-        else
-        {
+    private int _currentStep = 0;
+
+    void Awake()
+    {
+        if (tutorialPanel != null)
             tutorialPanel.SetActive(false);
-        }
     }
 
-    IEnumerator ShowTutorial()
+    public void OpenTutorial()
     {
-        // Показываем первый текст
-        tutorialText1.gameObject.SetActive(true);
-        tutorialText2.gameObject.SetActive(false);
-        tutorialText3.gameObject.SetActive(false);
+        _currentStep = 0;
+        tutorialPanel.SetActive(true);
+        ShowStep();
+    }
 
-        yield return new WaitForSeconds(3f);
+    public void NextStep()
+    {
+        _currentStep++;
+        if (_currentStep >= steps.Length)
+        {
+            CloseTutorial();
+            return;
+        }
+        ShowStep();
+    }
 
-        // Показываем второй текст
-        tutorialText1.gameObject.SetActive(false);
-        tutorialText2.gameObject.SetActive(true);
-
-        yield return new WaitForSeconds(3f);
-
-        // Показываем третий текст
-        tutorialText2.gameObject.SetActive(false);
-        tutorialText3.gameObject.SetActive(true);
-
-        yield return new WaitForSeconds(3f);
-
-        // Скрываем туториал
+    public void CloseTutorial()
+    {
         tutorialPanel.SetActive(false);
-        _tutorialShown = true;
+    }
+
+    void ShowStep()
+    {
+        if (tutorialText != null && _currentStep < steps.Length)
+            tutorialText.text = steps[_currentStep];
+
+        if (pageIndicatorText != null)
+            pageIndicatorText.text = (_currentStep + 1) + "/" + steps.Length;
+
+        if (nextButtonLabel != null)
+            nextButtonLabel.text = (_currentStep == steps.Length - 1) ? "GOT IT" : "NEXT";
     }
 }

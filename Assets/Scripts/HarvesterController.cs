@@ -2,18 +2,17 @@
 
 public class HarvesterController : MonoBehaviour
 {
-    [Header("Настройки")]
+    [Header("Settings")]
     public float baseMoveSpeed = 3f;
     public float baseCollectRadius = 0.5f;
     public float rotationSpeed = 10f;
 
-    [Header("Щит")]
+    [Header("Shield")]
     public GameObject shieldEffect;
 
     private float _moveSpeed;
     private float _collectRadius;
-    private bool _hasArmor = false;
-    private bool _armorUsed = false;
+    private int _armorCharges = 0;
     private Vector3 _targetPosition;
     private bool _isMoving = false;
     private RhythmManager _rhythmManager;
@@ -39,7 +38,7 @@ public class HarvesterController : MonoBehaviour
 
         _moveSpeed = baseMoveSpeed + speedLevel * 0.5f;
         _collectRadius = baseCollectRadius + radiusLevel * 0.2f;
-        _hasArmor = armorLevel > 0;
+        _armorCharges = Mathf.Min(armorLevel, 2); // number of saves per level, capped at 2
 
         if (shieldEffect != null)
             shieldEffect.SetActive(false);
@@ -122,10 +121,10 @@ public class HarvesterController : MonoBehaviour
 
     public bool TryUseArmor()
     {
-        if (_hasArmor && !_armorUsed)
+        if (_armorCharges > 0)
         {
-            _armorUsed = true;
-            Debug.Log("Броня использована!");
+            _armorCharges--;
+            Debug.Log("Armor used! Charges remaining: " + _armorCharges);
 
             WormController wormController = FindObjectOfType<WormController>();
             if (wormController != null)
