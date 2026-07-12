@@ -23,6 +23,18 @@ public class ShopManager : MonoBehaviour
     public GameObject skinPanel;
     public GameObject spicePanel;
 
+    [Header("Purchase Feedback")]
+    public TextMeshProUGUI purchaseToastText; // опционально, короткое "Purchased!"
+    public float toastDuration = 1.5f;
+
+    [Header("Spice Pack Buttons")]
+    public Button smallPackButton;
+    public TextMeshProUGUI smallPackButtonText;
+    public Button mediumPackButton;
+    public TextMeshProUGUI mediumPackButtonText;
+    public Button largePackButton;
+    public TextMeshProUGUI largePackButtonText;
+
     private int _currentSkin = 0;
     private int _selectedSkin = 0;
 
@@ -47,14 +59,24 @@ public class ShopManager : MonoBehaviour
         "1.99$"
     };
 
-    private bool[] _unlocked = { true, false, false, false };
+    private bool[] _unlocked;
 
     void Start()
     {
+        // Загружаем разблокировки из PlayerPrefs (по умолчанию только Standard открыт)
+        _unlocked = new bool[_names.Length];
+        for (int i = 0; i < _names.Length; i++)
+            _unlocked[i] = i == 0 || PlayerPrefs.GetInt("SkinUnlocked_" + i, 0) == 1;
+
         ShowHarvesters();
         _selectedSkin = PlayerPrefs.GetInt("SelectedSkin", 0);
         _currentSkin = _selectedSkin;
         UpdateUI();
+
+        if (purchaseToastText != null)
+            purchaseToastText.alpha = 0f;
+
+        RefreshSpicePackButtons();
     }
 
     public void NextSkin()
@@ -130,26 +152,41 @@ public class ShopManager : MonoBehaviour
 
         if (_unlocked[_currentSkin])
         {
-            _selectedSkin = _currentSkin;
-            PlayerPrefs.SetInt("SelectedSkin", _selectedSkin);
-            PlayerPrefs.Save();
-            UpdateUI();
+            SelectSkin(_currentSkin);
         }
         else
         {
-            ShowPurchasePopup();
+            // Fake purchase — no real transaction, instantly unlocks
+            _unlocked[_currentSkin] = true;
+            PlayerPrefs.SetInt("SkinUnlocked_" + _currentSkin, 1);
+            PlayerPrefs.Save();
+
+            SelectSkin(_currentSkin);
+            ShowPurchaseToast();
         }
     }
 
-    void ShowPurchasePopup()
+    void SelectSkin(int index)
     {
-        buyButtonText.text = "Coming Soon!";
-        Invoke(nameof(ResetButton), 2f);
+        _selectedSkin = index;
+        PlayerPrefs.SetInt("SelectedSkin", _selectedSkin);
+        PlayerPrefs.Save();
+        UpdateUI();
     }
 
-    void ResetButton()
+    void ShowPurchaseToast()
     {
-        UpdateUI();
+        if (purchaseToastText == null) return;
+        CancelInvoke(nameof(HideToast));
+        purchaseToastText.text = "PURCHASED!";
+        purchaseToastText.alpha = 1f;
+        Invoke(nameof(HideToast), toastDuration);
+    }
+
+    void HideToast()
+    {
+        if (purchaseToastText != null)
+            purchaseToastText.alpha = 0f;
     }
 
     public void GoBack()
@@ -159,30 +196,52 @@ public class ShopManager : MonoBehaviour
 
     public void BuySmallPack()
     {
-        ShowSpicePurchasePopup(500, "1.99$");
+        BuyPack("small", 500, "1.99$", smallPackButton, smallPackButtonText);
     }
 
     public void BuyMediumPack()
     {
-        ShowSpicePurchasePopup(1500, "4.99$");
+        BuyPack("medium", 1500, "4.99$", mediumPackButton, mediumPackButtonText);
     }
 
     public void BuyLargePack()
     {
-        ShowSpicePurchasePopup(4000, "9.99$");
+        BuyPack("large", 4000, "9.99$", largePackButton, largePackButtonText);
     }
 
-    void ShowSpicePurchasePopup(int amount, string price)
+    void BuyPack(string id, int amount, string price, Button btn, TextMeshProUGUI label)
     {
+        bool alreadyPurchased = PlayerPrefs.GetInt("SpicePackBought_" + id, 0) == 1;
+        if (alreadyPurchased) return;
+
+        // Fake purchase — no real transaction, one-time only
+        PlayerPrefs.SetInt("SpicePackBought_" + id, 1);
+        PlayerPrefs.Save();
+
+        if (UpgradeManager.Instance != null)
+            UpgradeManager.Instance.AddSpice(amount);
+
         Debug.Log("Purchase: " + amount + " spice for " + price);
-        skinName.text = "Coming Soon!";
-        skinDescription.text = "In-app purchases will be\navailable in full release";
-        Invoke(nameof(ResetAfterPopup), 2f);
+        ShowPurchaseToast();
+        RefreshPackButton(id, amount, price, btn, label);
     }
 
-    void ResetAfterPopup()
+    void RefreshSpicePackButtons()
     {
-        UpdateUI();
+        RefreshPackButton("small", 500, "1.99$", smallPackButton, smallPackButtonText);
+        RefreshPackButton("medium", 1500, "4.99$", mediumPackButton, mediumPackButtonText);
+        RefreshPackButton("large", 4000, "9.99$", largePackButton, largePackButtonText);
+    }
+
+    void RefreshPackButton(string id, int amount, string price, Button btn, TextMeshProUGUI label)
+    {
+        bool purchased = PlayerPrefs.GetInt("SpicePackBought_" + id, 0) == 1;
+
+        if (label != null)
+            label.text = purchased ? "PURCHASED" : amount + " Spice - " + price;
+
+        if (btn != null)
+            btn.interactable = !purchased;
     }
 
     public void ShowHarvesters()

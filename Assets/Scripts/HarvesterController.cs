@@ -10,6 +10,9 @@ public class HarvesterController : MonoBehaviour
     [Header("Shield")]
     public GameObject shieldEffect;
 
+    [Header("Skins")]
+    public Sprite[] harvesterSkins; // must match ShopManager's skinSprites order
+
     private float _moveSpeed;
     private float _collectRadius;
     private int _armorCharges = 0;
@@ -43,10 +46,24 @@ public class HarvesterController : MonoBehaviour
         if (shieldEffect != null)
             shieldEffect.SetActive(false);
 
+        ApplySkin();
+    }
+
+    void ApplySkin()
+    {
         int skinIndex = PlayerPrefs.GetInt("SelectedSkin", 0);
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null)
+        if (sr == null) return;
+
+        if (harvesterSkins != null && harvesterSkins.Length > skinIndex && harvesterSkins[skinIndex] != null)
         {
+            // Используем настоящий спрайт скина, если он назначен
+            sr.sprite = harvesterSkins[skinIndex];
+            sr.color = Color.white;
+        }
+        else
+        {
+            // Фолбэк на цветовую покраску, если спрайт не назначен
             Color[] skinColors = {
                 new Color(1f, 1f, 1f),
                 new Color(0.10f, 0.23f, 0.42f),

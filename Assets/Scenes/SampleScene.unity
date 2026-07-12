@@ -11018,6 +11018,11 @@ MonoBehaviour:
   baseCollectRadius: 0.5
   rotationSpeed: 10
   shieldEffect: {fileID: 1886818216}
+  harvesterSkins:
+  - {fileID: 3588005943681406384, guid: 35918fc3d7249174da00dc67cf19876d, type: 3}
+  - {fileID: 4504242660848200627, guid: 5c85a07d31418d545be1fbeb249ef04a, type: 3}
+  - {fileID: 855684190764136974, guid: 683e5c4137f3c3e4ca7c59efe4bf2715, type: 3}
+  - {fileID: 21300000, guid: ceea17cbd02d5b344be55bd1b1ef1f9d, type: 3}
 --- !u!212 &572607269
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -13332,9 +13337,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tutorialPanel: {fileID: 789933016}
-  tutorialText1: {fileID: 2027713488}
-  tutorialText2: {fileID: 992636365}
-  tutorialText3: {fileID: 2030497282}
+  tutorialText: {fileID: 0}
+  pageIndicatorText: {fileID: 0}
+  nextButton: {fileID: 0}
+  nextButtonLabel: {fileID: 0}
+  closeButton: {fileID: 0}
+  steps:
+  - TAP the glowing spice markers in rhythm to move your harvester.
+  - SWIPE to dodge the worm when it gets close. You have a limited number of dodges
+    per level.
+  - The worm chases you and speeds up if you miss a beat. Don't fall behind!
+  - 'SHIELD: upgrade Armor in the shop to get up to 2 shields per level. A shield
+    saves you from one worm bite.'
 --- !u!1 &1406696189
 GameObject:
   m_ObjectHideFlags: 0

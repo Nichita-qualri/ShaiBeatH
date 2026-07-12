@@ -121,6 +121,14 @@ public class UpgradeManager : MonoBehaviour
         UpdateUI();
     }
 
+    public void AddSpice(int amount)
+    {
+        _spiceBank += amount;
+        PlayerPrefs.SetInt("SpiceBank", _spiceBank);
+        PlayerPrefs.Save();
+        UpdateUI();
+    }
+
     public void NextLevel()
     {
         upgradeScreen.SetActive(false);
