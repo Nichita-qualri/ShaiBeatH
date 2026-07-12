@@ -13,18 +13,18 @@ public class ShopManager : MonoBehaviour
     public TextMeshProUGUI buyButtonText;
     public TextMeshProUGUI dotsText;
 
-    [Header("Спрайты скинов")]
+    [Header("Skin Sprites")]
     public Sprite[] skinSprites;
 
-    [Header("Цвета скинов (если нет спрайта)")]
+    [Header("Skin Colors (fallback if no sprite)")]
     public Color[] skinColors;
 
-    [Header("Панели")]
+    [Header("Panels")]
     public GameObject skinPanel;
     public GameObject spicePanel;
 
     [Header("Purchase Feedback")]
-    public TextMeshProUGUI purchaseToastText; // опционально, короткое "Purchased!"
+    public TextMeshProUGUI purchaseToastText; // optional, brief "Purchased!" popup
     public float toastDuration = 1.5f;
 
     [Header("Spice Pack Buttons")]
@@ -63,7 +63,7 @@ public class ShopManager : MonoBehaviour
 
     void Start()
     {
-        // Загружаем разблокировки из PlayerPrefs (по умолчанию только Standard открыт)
+        // Load unlock states from PlayerPrefs (Standard is unlocked by default)
         _unlocked = new bool[_names.Length];
         for (int i = 0; i < _names.Length; i++)
             _unlocked[i] = i == 0 || PlayerPrefs.GetInt("SkinUnlocked_" + i, 0) == 1;
@@ -93,7 +93,7 @@ public class ShopManager : MonoBehaviour
 
     void UpdateUI()
     {
-        // Спрайт или цвет
+        // Sprite or color
         if (skinImage != null)
         {
             if (skinSprites != null && skinSprites.Length > _currentSkin && skinSprites[_currentSkin] != null)
@@ -201,12 +201,30 @@ public class ShopManager : MonoBehaviour
 
     public void BuyMediumPack()
     {
-        BuyPack("medium", 1500, "4.99$", mediumPackButton, mediumPackButtonText);
+        ShowComingSoon(mediumPackButtonText);
     }
 
     public void BuyLargePack()
     {
-        BuyPack("large", 4000, "9.99$", largePackButton, largePackButtonText);
+        ShowComingSoon(largePackButtonText);
+    }
+
+    void ShowComingSoon(TextMeshProUGUI label)
+    {
+        if (label == null) return;
+        string original = label.text;
+        label.text = "COMING SOON";
+        CancelInvoke(nameof(ResetComingSoonLabels));
+        Invoke(nameof(ResetComingSoonLabels), 1.5f);
+    }
+
+    void ResetComingSoonLabels()
+    {
+        // Restore Medium/Large labels to their normal price text (they stay locked either way)
+        if (mediumPackButtonText != null)
+            mediumPackButtonText.text = "1500 Spice - 4.99$";
+        if (largePackButtonText != null)
+            largePackButtonText.text = "4000 Spice - 9.99$";
     }
 
     void BuyPack(string id, int amount, string price, Button btn, TextMeshProUGUI label)
@@ -218,8 +236,13 @@ public class ShopManager : MonoBehaviour
         PlayerPrefs.SetInt("SpicePackBought_" + id, 1);
         PlayerPrefs.Save();
 
-        if (UpgradeManager.Instance != null)
-            UpgradeManager.Instance.AddSpice(amount);
+        // Write directly to PlayerPrefs so this works even if UpgradeManager
+        // hasn't been created yet in this scene (e.g. the Shop scene).
+        // UpgradeManager will pick up the correct value on its next Awake().
+        int currentBank = PlayerPrefs.GetInt("SpiceBank", 0);
+        currentBank += amount;
+        PlayerPrefs.SetInt("SpiceBank", currentBank);
+        PlayerPrefs.Save();
 
         Debug.Log("Purchase: " + amount + " spice for " + price);
         ShowPurchaseToast();
