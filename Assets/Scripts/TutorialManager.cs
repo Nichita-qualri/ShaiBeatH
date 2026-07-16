@@ -7,13 +7,12 @@ public class TutorialManager : MonoBehaviour
     [Header("Panel")]
     public GameObject tutorialPanel;
     public TextMeshProUGUI tutorialText;
-    public TextMeshProUGUI pageIndicatorText; // optional, e.g. "1/4"
+    public TextMeshProUGUI pageIndicatorText; 
 
     [Header("Buttons")]
     public Button nextButton;
-    public TextMeshProUGUI nextButtonLabel; // text inside nextButton, e.g. "NEXT" / "GOT IT"
-    public Button closeButton; // optional separate close (X) button
-
+    public TextMeshProUGUI nextButtonLabel; 
+    public Button closeButton; 
     [Header("Steps")]
     [TextArea(2, 4)]
     public string[] steps = new string[]

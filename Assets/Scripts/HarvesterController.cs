@@ -57,13 +57,13 @@ public class HarvesterController : MonoBehaviour
 
         if (harvesterSkins != null && harvesterSkins.Length > skinIndex && harvesterSkins[skinIndex] != null)
         {
-            // Используем настоящий спрайт скина, если он назначен
+            // Use the actual skin sprite if one is assigned
             sr.sprite = harvesterSkins[skinIndex];
             sr.color = Color.white;
         }
         else
         {
-            // Фолбэк на цветовую покраску, если спрайт не назначен
+            // Fallback to color tint if no sprite is assigned
             Color[] skinColors = {
                 new Color(1f, 1f, 1f),
                 new Color(0.10f, 0.23f, 0.42f),

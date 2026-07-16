@@ -2,25 +2,20 @@
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
-
 public class LevelSelectManager : MonoBehaviour
 {
     [Header("UI")]
     public Transform levelsGrid;
     public GameObject levelButtonPrefab;
-
-    [Header("Настройки")]
+    [Header("Settings")]
     public int totalLevels = 15;
-
     private int _unlockedLevels;
-
     void Start()
     {
-        // Читаем МАКСИМАЛЬНЫЙ открытый уровень, а не текущий выбранный
+        // Read the MAX unlocked level, not the currently selected one
         _unlockedLevels = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
         CreateLevelButtons();
     }
-
     void CreateLevelButtons()
     {
         for (int i = 1; i <= totalLevels; i++)
@@ -31,7 +26,6 @@ public class LevelSelectManager : MonoBehaviour
             Button button = btn.GetComponent<Button>();
             Image image = btn.GetComponent<Image>();
             int levelNum = i;
-
             if (i <= _unlockedLevels)
             {
                 text.text = i.ToString();
@@ -47,7 +41,6 @@ public class LevelSelectManager : MonoBehaviour
             }
         }
     }
-
     void AddChapterLabel(string title, Transform parent, int index)
     {
         GameObject label = new GameObject(title);
@@ -61,16 +54,14 @@ public class LevelSelectManager : MonoBehaviour
         RectTransform rt = label.GetComponent<RectTransform>();
         rt.sizeDelta = new Vector2(900, 50);
     }
-
     void SelectLevel(int level)
     {
-        // Тут только выбираем, какой уровень ЗАГРУЗИТЬ.
-        // MaxUnlockedLevel не трогаем — прогресс не теряется
+        // This only selects which level to LOAD.
+        // MaxUnlockedLevel is left untouched — progress isn't lost
         PlayerPrefs.SetInt("CurrentLevel", level);
         PlayerPrefs.Save();
         SceneManager.LoadScene("SampleScene");
     }
-
     public void GoBack()
     {
         SceneManager.LoadScene("MainMenu");

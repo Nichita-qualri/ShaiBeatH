@@ -17,12 +17,12 @@ public class UpgradeManager : MonoBehaviour
     public TextMeshProUGUI radiusButtonText;
     public TextMeshProUGUI armorButtonText;
 
-    [Header("Цены")]
+    [Header("Costs")]
     public int speedCost = 500;
     public int radiusCost = 500;
     public int armorCost = 800;
 
-    [Header("Макс уровень")]
+    [Header("Max Level")]
     public int maxUpgradeLevel = 5;
 
     private int _spiceBank;
@@ -35,7 +35,7 @@ public class UpgradeManager : MonoBehaviour
         Instance = this;
         upgradeScreen.SetActive(false);
 
-        // Загружаем сохранённые данные
+        // Load saved data
         _spiceBank = PlayerPrefs.GetInt("SpiceBank", 0);
         _speedLevel = PlayerPrefs.GetInt("SpeedLevel", 0);
         _radiusLevel = PlayerPrefs.GetInt("RadiusLevel", 0);
@@ -44,7 +44,7 @@ public class UpgradeManager : MonoBehaviour
 
     public void ShowUpgradeScreen(int earnedSpice)
     {
-        // Добавляем заработанный спайс в банк
+        // Add the earned spice to the bank
         _spiceBank += earnedSpice;
         PlayerPrefs.SetInt("SpiceBank", _spiceBank);
         PlayerPrefs.Save();

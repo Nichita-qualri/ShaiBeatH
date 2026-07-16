@@ -41,8 +41,8 @@ public class LevelManager : MonoBehaviour
 
         currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
 
-        // Миграция старых сохранений: если MaxUnlockedLevel ещё нет,
-        // берём максимум из CurrentLevel, чтобы не потерять прогресс
+        // Migrate old saves: if MaxUnlockedLevel doesn't exist yet,
+        // fall back to CurrentLevel so progress isn't lost
         int maxUnlocked = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
         if (currentLevel > maxUnlocked)
         {
@@ -50,7 +50,7 @@ public class LevelManager : MonoBehaviour
             PlayerPrefs.Save();
         }
 
-        // Endless Mode если прошли все уровни
+        // Enable Endless Mode once all levels are cleared
         if (currentLevel > maxLevels)
         {
             isEndlessMode = true;
@@ -90,7 +90,7 @@ public class LevelManager : MonoBehaviour
         WormController worm = FindObjectOfType<WormController>();
         SpiceSpawner spawner = FindObjectOfType<SpiceSpawner>();
 
-        // В Endless Mode сложность продолжает расти
+        // Difficulty keeps scaling in Endless Mode
         int effectiveLevel = isEndlessMode ? maxLevels + _endlessMultiplier : level;
 
         if (rhythm != null)
@@ -128,14 +128,14 @@ public class LevelManager : MonoBehaviour
 
         int nextLevel = currentLevel + 1;
 
-        // Обновляем МАКСИМАЛЬНЫЙ открытый уровень, только если nextLevel больше
+        // Update the MAX unlocked level, only if nextLevel is higher
         int maxUnlocked = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
         if (nextLevel > maxUnlocked)
         {
             PlayerPrefs.SetInt("MaxUnlockedLevel", nextLevel);
         }
 
-        // CurrentLevel двигаем вперёд, чтобы "Next Level" вёл на новый уровень
+        // Advance CurrentLevel so "Next Level" points to the new level
         PlayerPrefs.SetInt("CurrentLevel", nextLevel);
         PlayerPrefs.Save();
 
